@@ -1,41 +1,82 @@
 package main;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class StartPanel extends JPanel {
-    private JButton playButton;
+    private JButton playButton, playButton2;
+    private BufferedImage backgroundImg;
+    public boolean started = false;
 
-    public StartPanel() {
-        setLayout(null);  // Use absolute positioning to center the button
+    private Game game;
 
-        // Set up the background color or image if needed
-        setBackground(Color.CYAN);  // Set the background color or you can add a background image
+    public StartPanel(Game game) {
+        this.game = game;
+        setLayout(null);  // center the button
+        importImg();
+        setPanelSize();
 
-        // Create the Play button and set its properties
-        playButton = new JButton("Play");
-        playButton.setBounds(500, 350, 150, 50);  // Position the button at the center of the screen
+        playButton = new JButton("Play level 1");
+        playButton.setBounds(500, 350, 150, 50);
         playButton.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        // Add ActionListener to the Play button
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // When the Play button is clicked, transition to the game screen
-                startGame();
+                startGame(1);
+                started = true;
             }
         });
 
-        // Add the button to the panel
+        playButton2 = new JButton("Play level 2");
+        playButton2.setBounds(500, 450, 150, 50);
+        playButton2.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        playButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startGame(2);
+                started = true;
+            }
+        });
+
+        add(playButton2);
         add(playButton);
     }
 
-    // Method to transition to the game screen
-    private void startGame() {
-        // Remove StartScreen and load GamePanel
-        GameWindow.changePanel(new GamePanel());
+    private void startGame(int l) {
+        if (l == 1) {
+            game.transitionToGamePanel(new GamePanel(game));
+        } else {
+            game.transitionToGamePanel(new GamePanel2(game));
+        }
+    }
+
+    private void setPanelSize() {
+        Dimension size = new Dimension(1280, 800);
+        setPreferredSize(size);
+    }
+
+    private void importImg() {
+        InputStream bgIs = getClass().getResourceAsStream("/res/background3.png");
+        try {
+            backgroundImg = ImageIO.read(bgIs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImg != null) {
+            g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), this);  // Draw image scaled to panel size
+        }
     }
 }
-
