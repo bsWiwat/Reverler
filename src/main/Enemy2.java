@@ -8,22 +8,34 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Enemy implements EnemyInterface {
+public class Enemy2 implements EnemyInterface {
     private int xPosition, yPosition;
     private BufferedImage img;
-    private final int WIDTH = 110, HEIGHT = 110;
+    public final int WIDTH = 110, HEIGHT = 110;
     private boolean movingRight = true;
+    private long lastFireballTime = 0; // Track last fireball time
+    private final long FIREBALL_COOLDOWN = 5000; // 5 seconds cooldown
 
     // Constructor
-    public Enemy(int x, int y) {
+    public Enemy2(int x, int y) {
         this.xPosition = x;
         this.yPosition = y;
         loadImg();
     }
 
+    // Check if the enemy can shoot
+    public boolean canShoot() {
+        return System.currentTimeMillis() - lastFireballTime >= FIREBALL_COOLDOWN;
+    }
+
+    // Mark the time of the last shot
+    public void shoot() {
+        lastFireballTime = System.currentTimeMillis();
+    }
+
     // Load the enemy image
     private void loadImg() {
-        InputStream is = getClass().getResourceAsStream("/res/e2.png");
+        InputStream is = getClass().getResourceAsStream("/res/eb1.png");
         try {
             img = ImageIO.read(is);
         } catch (IOException e) {
@@ -34,7 +46,7 @@ public class Enemy implements EnemyInterface {
     // Change the image when the direction changes
     private void changeImage() {
         try {
-            img = ImageIO.read(getClass().getResource("/res/e2f.png"));
+            img = ImageIO.read(getClass().getResource("/res/eb1.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,10 +54,15 @@ public class Enemy implements EnemyInterface {
 
     private void changeImage2() {
         try {
-            img = ImageIO.read(getClass().getResource("/res/e2.png"));
+            img = ImageIO.read(getClass().getResource("/res/eb1.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // Check if the enemy is moving right
+    public boolean isMovingRight() {
+        return movingRight;
     }
 
     // Update movement direction
