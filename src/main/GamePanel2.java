@@ -4,14 +4,14 @@ import inputs.KeyboardInputs;
 import utils.GameInterface;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class GamePanel extends JPanel implements GameInterface {
+public class GamePanel2 extends JPanel implements GameInterface {
     private int xPosition = 100, yPosition = 650;
     private BufferedImage img, backgroundImg;
     private BufferedImage[] idleAnimation;
@@ -23,7 +23,6 @@ public class GamePanel extends JPanel implements GameInterface {
     private boolean isJumping = false;
     private boolean isMovingLeft = false;
     private ArrayList<Fireball> fireballs = new ArrayList<>();
-    private final int MOVE_SPEED = 5;
 
     private int currentHP = 10;
     private final int MAX_HP = 10;
@@ -31,52 +30,59 @@ public class GamePanel extends JPanel implements GameInterface {
     private final int HP_BAR_HEIGHT = 20;
 
     // Enemies list
-    private ArrayList<Enemy> enemies = new ArrayList<>();
+    private ArrayList<Enemy2> enemies = new ArrayList<>();
     private int score = 0;
     private Game game;
 
-    // Slowdown and damage variables
+    // Slowdown and damage
     private boolean isSlowed = false;
     private long slowdownStartTime = 0;
-    private final long SLOWDOWN_DURATION = 3000; // 3 seconds
+    private final long SLOWDOWN_DURATION = 2000; // 3 seconds
     private final double DAMAGE_PER_SECOND = 0.5;
     private long lastDamageTime = 0;
 
     private ArrayList<Platform> platforms = new ArrayList<>();
 
-    public GamePanel(Game game) {
+    public GamePanel2(Game game) {
         this.game = game;
         importImg();
         loadAnimation();
         setPanelSize();
         addKeyListener(new KeyboardInputs(this));
         setFocusable(true);
+        requestFocusInWindow();
 
-        // Add 10 enemies at different x positions
-        for (int i = 0; i < 5; i++) {
-            int xPosition = 200 + i * 150; // Adjust the spacing between enemies as needed
-            enemies.add(new Enemy(xPosition, GROUND_LEVEL)); // Add enemy to the list
+        // platforms
+        platforms.add(new Platform(800, 200, 400, 20));
+        platforms.add(new Platform(600, 300, 250, 20));
+        platforms.add(new Platform(150, 450, 600, 20));
+        platforms.add(new Platform(100, 550, 150, 20));
+
+        for (int i = 0; i < 2; i++) {
+            int xPosition = 200 + i * 300;
+            int yPosition = GROUND_LEVEL;
+            enemies.add(new Enemy2(xPosition, yPosition));
         }
 
-        // Initialize platforms
-        platforms.add(new Platform(200, 600, 150, 20));
-        platforms.add(new Platform(500, 500, 150, 20));
-        platforms.add(new Platform(800, 300, 150, 20));
+        enemies.add(new Enemy2(900, 20));
+        enemies.add(new Enemy2(1100, 10));
+        enemies.add(new Enemy2(1200, 300));
+        enemies.add(new Enemy2(1240, 450));
+        enemies.add(new Enemy2(400, 300));
     }
 
-    // Import the player and background images
     private void importImg() {
-        InputStream bgIs = getClass().getResourceAsStream("/res/background2.png"); // Load background image
+        InputStream bgIs = getClass().getResourceAsStream("/res/background4.png");
         try {
-            backgroundImg = ImageIO.read(bgIs);  // Read background image
+            backgroundImg = ImageIO.read(bgIs);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Load player animations
+    // player animations
     private void loadAnimation() {
-        idleAnimation = new BufferedImage[3];  // Assuming you have 3 frames (p1.png, p2.png, p3.png)
+        idleAnimation = new BufferedImage[3];
         try {
             idleAnimation[0] = ImageIO.read(getClass().getResource("/res/p1.png"));
             idleAnimation[1] = ImageIO.read(getClass().getResource("/res/p2.png"));
@@ -86,24 +92,24 @@ public class GamePanel extends JPanel implements GameInterface {
         }
     }
 
-    // Set the panel size
+    // panel size
     private void setPanelSize() {
         Dimension size = new Dimension(1280, 800);
         setPreferredSize(size);
     }
 
-    // Update position to include platform collision
+    // position to include platform
     @Override
     public void updatePosition() {
         if (isJumping) {
             yPosition += jumpVelocity;
             jumpVelocity += GRAVITY;
 
-            // Check if the player is on any platform
+            // Check player platform
             boolean onPlatform = false;
             for (Platform platform : platforms) {
                 if (isOnPlatform(platform) && isWithinPlatformXRange(platform)) {
-                    yPosition = platform.getY() - 120; // Set player on top of platform
+                    yPosition = platform.getY() - 110; // Set player on top of platform
                     isJumping = false;
                     jumpVelocity = 0;
                     onPlatform = true;
@@ -111,7 +117,7 @@ public class GamePanel extends JPanel implements GameInterface {
                 }
             }
 
-            // If not on any platform, fall to the ground
+            // fall to the ground
             if (!onPlatform && yPosition >= GROUND_LEVEL) {
                 yPosition = GROUND_LEVEL;
                 isJumping = false;
@@ -131,28 +137,25 @@ public class GamePanel extends JPanel implements GameInterface {
             }
         }
 
-        // Slowdown and damage check for enemies
-        for (Enemy enemy : enemies) {
+        // Slowdown and damage
+        for (Enemy2 enemy : enemies) {
             if (isEnemyInRange(enemy)) {
                 applySlowdown();
                 applyDamage();
             }
         }
+
     }
 
-    // Helper method to check if the player's x position is within the platform's range
     private boolean isWithinPlatformXRange(Platform platform) {
         return xPosition + 60 >= platform.getX() && xPosition + 60 <= platform.getX() + platform.getWidth();
     }
 
-    // Check if player is on top of a platform
     private boolean isOnPlatform(Platform platform) {
-        return new Rectangle(xPosition, yPosition + 100, 120, 10).intersects(platform.getBounds());
+        return new Rectangle(xPosition, yPosition + 120, 120, 10).intersects(platform.getBounds());
     }
 
-    // Check if the enemy is within range of the player both horizontally and vertically
-    @Override
-    public boolean isEnemyInRange(Enemy enemy) {
+    public boolean isEnemyInRange(Enemy2 enemy) {
         int horizontalRange = 50;
         int verticalRange = 30;
 
@@ -195,7 +198,7 @@ public class GamePanel extends JPanel implements GameInterface {
     @Override
     public void shootFireball() {
         int velocityX = isMovingLeft ? -10 : 10;
-        fireballs.add(new Fireball(xPosition + 60, yPosition + 20, velocityX));
+        fireballs.add(new Fireball(xPosition + 60, yPosition + 20, velocityX, true));
     }
 
     @Override
@@ -229,16 +232,24 @@ public class GamePanel extends JPanel implements GameInterface {
         for (int i = 0; i < fireballs.size(); i++) {
             Fireball fireball = fireballs.get(i);
 
-            for (int j = 0; j < enemies.size(); j++) {
-                Enemy enemy = enemies.get(j);
-
-                if (fireball.getBounds().intersects(enemy.getBounds())) {
-                    enemies.remove(j);
-                    fireballs.remove(i);
-                    score++;
-                    if (score >= 5) {
-                        game.transitionToStartPanel(); // Transition back to StartPanel
+            if (fireball.isPlayerShot()) {
+                // player fireballs hit enemies
+                for (int j = 0; j < enemies.size(); j++) {
+                    Enemy2 enemy = enemies.get(j);
+                    if (fireball.getBounds().intersects(enemy.getBounds())) {
+                        enemies.remove(j);
+                        fireballs.remove(i);
+                        score++;
+                        i--;
+                        break;
                     }
+                }
+            } else {
+                // enemy fireballs hit player
+                if (fireball.getBounds().intersects(new Rectangle(xPosition, yPosition, 120, 120))) {
+                    // fireball hit player
+                    currentHP -= DAMAGE_PER_SECOND;
+                    fireballs.remove(i);
                     i--;
                     break;
                 }
@@ -247,8 +258,20 @@ public class GamePanel extends JPanel implements GameInterface {
 
         fireballs.removeIf(fireball -> fireball.getX() > getWidth() || fireball.getX() < 0);
 
+        // Update all fireballs
         for (Fireball fireball : fireballs) {
             fireball.update();
+        }
+    }
+
+    public void updateEnemyFireballs() {
+        for (Enemy2 enemy : enemies) {
+            if (enemy.canShoot()) {
+                // shoots fireball
+                int fireballVelocity = enemy.isMovingRight() ? 5 : -5; // based on enemy movement
+                fireballs.add(new Fireball(enemy.getX() + enemy.WIDTH / 2, enemy.getY() + enemy.HEIGHT / 2, fireballVelocity, false));
+                enemy.shoot();
+            }
         }
     }
 
@@ -256,7 +279,7 @@ public class GamePanel extends JPanel implements GameInterface {
     public void drawScore(Graphics g) {
         g.setColor(Color.CYAN);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score + " / 5", getWidth() - 150, 30);
+        g.drawString("Score: " + score + " / 7", getWidth() - 150, 30);
     }
 
     @Override
@@ -274,6 +297,13 @@ public class GamePanel extends JPanel implements GameInterface {
         drawHealthBar(g);
         drawScore(g);
 
+        if (score >= 7 || currentHP <= 0) {
+            platforms.clear();
+            enemies.clear();
+            fireballs.clear();
+            game.transitionToStartPanel(); // back to Start Panel
+        }
+
         for (Fireball fireball : fireballs) {
             fireball.draw(g);
         }
@@ -282,9 +312,11 @@ public class GamePanel extends JPanel implements GameInterface {
             platform.draw(g);
         }
 
-        for (Enemy enemy : enemies) {
+        for (Enemy2 enemy : enemies) {
             enemy.update();
             enemy.draw(g);
         }
+
+        updateEnemyFireballs();
     }
 }
