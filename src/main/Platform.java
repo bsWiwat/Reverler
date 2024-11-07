@@ -1,10 +1,6 @@
 package main;
 
-package main;
-
-import java.awt.Graphics;
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 
 public class Platform {
     private int x, y, width, height;
@@ -16,19 +12,29 @@ public class Platform {
         this.height = height;
     }
 
-    // Draw the platform as a filled rectangle
     public void draw(Graphics g) {
-        g.setColor(Color.GRAY);  // Platform color
+        g.setColor(new Color(139, 69, 19)); // Brown color for platform
         g.fillRect(x, y, width, height);
     }
 
-    // Get the platform's bounding box (hitbox) for collision detection
+    // platform bounds
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
+    }
+
+    public int getX() {
+        return x;
     }
 
     public int getY() {
         return y;
     }
-}
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+}
